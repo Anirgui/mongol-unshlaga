@@ -1,511 +1,450 @@
 <script setup>
-    import {
-        ref,
-        onMounted
-    } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
-    const articles = ref([])
+const router = useRouter()
 
-    function loadArticles() {
-        articles.value = JSON.parse(
-            localStorage.getItem('articles') || '[]'
-        )
-    }
+const articles = ref([])
 
-    function deleteArticle(id) {
-        if (!confirm('Энэ нийтлэлийг устгах уу?')) {
-            return
-        }
+function loadArticles() {
+  articles.value = JSON.parse(
+    localStorage.getItem('articles') || '[]'
+  )
+}
 
-        articles.value = articles.value.filter(
-            article => article.id !== id
-        )
+function deleteArticle(id) {
+  if (!confirm('Энэ нийтлэлийг устгах уу?')) {
+    return
+  }
 
-        localStorage.setItem(
-            'articles',
-            JSON.stringify(articles.value)
-        )
-    }
+  articles.value = articles.value.filter(
+    article => article.id !== id
+  )
 
-    onMounted(() => {
-        loadArticles()
-    })
+  localStorage.setItem(
+    'articles',
+    JSON.stringify(articles.value)
+  )
+}
+
+function logout() {
+  localStorage.removeItem('adminLoggedIn')
+  router.push('/admin/login')
+}
+
+onMounted(() => {
+  loadArticles()
+})
 </script>
-<template>  <div class="admin-page">
-    <!-- SIDEBAR -->
 
+<template>
+  <div class="admin-page">
+
+    <!-- Зүүн талын Admin цэс -->
     <aside class="sidebar">
 
-        <h2>Уншлагын танхим</h2>
+      <h2>Уншлагын танхим</h2>
 
-        <router-link to="/admin">
-            📚 Нийтлэлүүд
-        </router-link>
+      <router-link
+        to="/admin/new"
+        class="menu-link"
+      >
+        ✏️ Шинэ нийтлэл
+      </router-link>
 
-        <router-link to="/admin/new">
-            ✏️ Шинэ нийтлэл
-        </router-link>
+      <a
+        href="/"
+        class="menu-link"
+      >
+        🌐 Сайт харах
+      </a>
 
-        <a href="/">
-            🌐 Сайт харах
-        </a>
+      <button
+        class="menu-link logout"
+        @click="logout"
+      >
+        🚪 Гарах
+      </button>
 
     </aside>
 
 
-    <!-- MAIN -->
-
+    <!-- Үндсэн хэсэг -->
     <main class="main">
 
-        <div class="topbar">
-
-            <h1>Нийтлэлүүд</h1>
-
-            <router-link
-                to="/admin/new"
-                class="new-button"
-                >
-                + Шинэ нийтлэл
-            </router-link>
-
-        </div>
+      <div class="topbar">
+        <h1>Нийтлэлүүд</h1>
+      </div>
 
 
-        <!-- НИЙТЛЭЛ БАЙХГҮЙ -->
+      <!-- Нийтлэл байхгүй үед -->
+      <div
+        v-if="articles.length === 0"
+        class="empty"
+      >
+        <h2>Одоогоор нийтлэл алга</h2>
 
-        <div
-            v-if="articles.length === 0"
-            class="empty"
-            >
+        <p>
+          Шинэ нийтлэл үүсгээд Publish дарна уу.
+        </p>
 
-            <h2>Одоогоор нийтлэл алга</h2>
-
-            <p>
-                Шинэ нийтлэл үүсгээд Publish дарна уу.
-            </p>
-
-            <router-link to="/admin/new">
-                + Шинэ нийтлэл
-            </router-link>
-
-        </div>
+        <router-link
+          to="/admin/new"
+          class="new-button"
+        >
+          + Шинэ нийтлэл
+        </router-link>
+      </div>
 
 
-        <!-- НИЙТЛЭЛҮҮД -->
+      <!-- Нийтлэлүүд -->
+      <div
+        v-else
+        class="post-list"
+      >
 
         <div
-            v-else
-            class="post-list"
-            >
+          v-for="article in articles"
+          :key="article.id"
+          class="post"
+        >
 
-            <div
-                v-for="article in articles"
-                :key="article.id"
-                class="post"
-                >
+          <div class="post-info">
 
-                <div class="post-info">
+            <h2>
+              {{ article.title }}
+            </h2>
 
-                    <h2>
-                        {{ article.title }}
-                    </h2>
+            <div class="meta">
 
-                    <div class="meta">
+              <span>
+                {{ article.category }}
+              </span>
 
-                        <span>
-                            {{ article.category }}
-                        </span>
+              <span>
+                {{ article.author }}
+              </span>
 
-                        <span>
-                            {{ article.author }}
-                        </span>
+              <span>
+                {{ article.date }}
+              </span>
 
-                        <span>
-                            {{ article.date }}
-                        </span>
-
-                        <span class="published">
-                            Published
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <!-- ҮЙЛДЛҮҮД -->
-
-                <div class="actions">
-
-                    <!-- ЗАСАХ -->
-
-                    <router-link
-                        :to="`/admin/edit/${article.id}`"
-                        class="edit"
-                        >
-                        Засах
-                    </router-link>
-
-
-                    <!-- УСТГАХ -->
-
-                    <button
-                        class="delete"
-                        @click="deleteArticle(article.id)"
-                        >
-                        Устгах
-                    </button>
-
-                </div>
+              <span class="published">
+                Published
+              </span>
 
             </div>
 
+          </div>
+
+
+          <div class="actions">
+
+            <router-link
+              :to="`/admin/edit/${article.id}`"
+              class="edit"
+            >
+              Засах
+            </router-link>
+
+            <button
+              class="delete"
+              @click="deleteArticle(article.id)"
+            >
+              Устгах
+            </button>
+
+          </div>
+
         </div>
+
+      </div>
 
     </main>
 
-</div>
-</template><style scoped>
-    * {
-        box-sizing: border-box;
-    }
+  </div>
+</template>
 
-    .admin-page {
-        min-height: 100vh;
-        display: flex;
-        background: #f5f5f5;
-    }
 
+<style scoped>
 
-    /* SIDEBAR */
+.admin-page {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
 
-    .sidebar {
-        width: 220px;
-        flex-shrink: 0;
 
-        background: #202124;
-        color: white;
+/* =========================
+   SIDEBAR
+========================= */
 
-        padding: 20px 12px;
-    }
+.sidebar {
+  width: 220px;
+  padding: 20px;
 
-    .sidebar h2 {
-        font-size: 17px;
-        margin: 0 0 25px;
-    }
+  background: white;
 
-    .sidebar a {
-        display: block;
+  box-sizing: border-box;
 
-        color: white;
-        text-decoration: none;
+  display: flex;
+  flex-direction: column;
+}
 
-        padding: 11px 10px;
-        border-radius: 6px;
+.sidebar h2 {
+  margin: 0 0 25px;
+}
 
-        margin-bottom: 4px;
-    }
 
-    .sidebar a:hover {
-        background: #333;
-    }
+/* Admin цэс */
 
+.menu-link {
+  display: block;
 
-    /* MAIN */
+  width: 100%;
 
-    .main {
-        flex: 1;
-        min-width: 0;
+  padding: 7px 0;
 
-        padding: 25px;
+  margin: 0;
 
-        max-width: 1200px;
-        margin: auto;
-    }
+  background: none;
+  border: none;
 
+  color: #333;
 
-    /* TOPBAR */
+  text-decoration: none;
 
-    .topbar {
-        display: flex;
+  font-size: 14px;
+  font-weight: normal;
 
-        justify-content: space-between;
-        align-items: center;
+  text-align: left;
 
-        gap: 15px;
+  cursor: pointer;
 
-        margin-bottom: 20px;
-    }
+  box-sizing: border-box;
+}
 
-    .topbar h1 {
-        margin: 0;
-        font-size: 25px;
-    }
+.menu-link:hover {
+  color: #000;
+}
 
-    .new-button {
-        flex-shrink: 0;
 
-        background: #2271b1;
-        color: white;
+/* Гарах */
 
-        text-decoration: none;
+.logout {
+  margin-top: auto;
+  color: #777;
+}
 
-        padding: 10px 15px;
-        border-radius: 5px;
+.logout:hover {
+  color: #c00;
+}
 
-        white-space: nowrap;
-    }
 
+/* =========================
+   MAIN
+========================= */
 
-    /* POSTS */
+.main {
+  flex: 1;
 
-    .post-list {
-        width: 100%;
+  padding: 30px;
+}
 
-        background: white;
 
-        border: 1px solid #ddd;
-        border-radius: 6px;
+/* Гарчиг */
 
-        overflow: hidden;
-    }
+.topbar {
+  margin-bottom: 25px;
+}
 
-    .post {
-        display: flex;
+.topbar h1 {
+  margin: 0;
+}
 
-        justify-content: space-between;
-        align-items: center;
 
-        gap: 15px;
+/* =========================
+   EMPTY
+========================= */
 
-        padding: 18px;
+.empty {
+  background: white;
 
-        border-bottom: 1px solid #eee;
-    }
+  padding: 40px;
 
-    .post:last-child {
-        border-bottom: 0;
-    }
+  text-align: center;
 
-    .post-info {
-        min-width: 0;
-        flex: 1;
-    }
+  border-radius: 8px;
+}
 
-    .post-info h2 {
-        margin: 0 0 9px;
+.empty p {
+  color: #777;
+}
 
-        font-size: 18px;
 
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+/* Шинэ нийтлэл */
 
+.new-button {
+  display: inline-block;
 
-    /* META */
+  margin-top: 10px;
 
-    .meta {
-        display: flex;
+  padding: 9px 14px;
 
-        gap: 12px;
+  background: #222;
+  color: white;
 
-        flex-wrap: wrap;
+  text-decoration: none;
 
-        font-size: 13px;
+  border-radius: 6px;
 
-        color: #666;
-    }
+  font-size: 14px;
+}
 
-    .published {
-        color: #16833b;
-    }
 
+/* =========================
+   POSTS
+========================= */
 
-    /* BUTTONS */
+.post-list {
+  display: flex;
 
-    .actions {
-        display: flex;
+  flex-direction: column;
 
-        gap: 7px;
+  gap: 12px;
+}
 
-        flex-shrink: 0;
-    }
+.post {
+  background: white;
 
-    .edit {
-        border: 1px solid #2271b1;
+  padding: 20px;
 
-        background: white;
-        color: #2271b1;
+  border-radius: 8px;
 
-        text-decoration: none;
+  display: flex;
 
-        padding: 7px 12px;
+  justify-content: space-between;
 
-        border-radius: 4px;
+  align-items: center;
+}
 
-        white-space: nowrap;
-    }
+.post-info h2 {
+  margin: 0 0 10px;
+}
 
-    .edit:hover {
-        background: #2271b1;
-        color: white;
-    }
+.meta {
+  display: flex;
 
-    .delete {
-        border: 1px solid #d63638;
+  gap: 10px;
 
-        background: white;
-        color: #d63638;
+  flex-wrap: wrap;
 
-        padding: 7px 12px;
+  color: #777;
 
-        border-radius: 4px;
+  font-size: 14px;
+}
 
-        cursor: pointer;
+.published {
+  color: green;
+}
 
-        white-space: nowrap;
-    }
 
-    .delete:hover {
-        background: #d63638;
-        color: white;
-    }
+/* =========================
+   ACTIONS
+========================= */
 
+.actions {
+  display: flex;
 
-    /* EMPTY */
+  gap: 8px;
+}
 
-    .empty {
-        background: white;
+.edit,
+.delete {
+  padding: 7px 11px;
 
-        border: 1px solid #ddd;
-        border-radius: 6px;
+  border-radius: 5px;
 
-        padding: 50px 20px;
+  font-size: 14px;
 
-        text-align: center;
-    }
+  text-decoration: none;
 
-    .empty h2 {
-        margin-top: 0;
-    }
+  cursor: pointer;
+}
 
-    .empty a {
-        display: inline-block;
+.edit {
+  background: #eee;
 
-        margin-top: 15px;
+  color: #222;
+}
 
-        background: #2271b1;
-        color: white;
+.delete {
+  border: none;
 
-        text-decoration: none;
+  background: #eee;
 
-        padding: 10px 16px;
+  color: #c00;
+}
 
-        border-radius: 5px;
-    }
 
+/* =========================
+   MOBILE
+========================= */
 
-    /* TABLET */
+@media (max-width: 600px) {
 
-    @media (max-width: 800px) {
+  .admin-page {
+    flex-direction: column;
+  }
 
-        .sidebar {
-            width: 190px;
-        }
+  .sidebar {
+    width: 100%;
 
-        .main {
-            padding: 20px;
-        }
+    flex-direction: row;
 
-        .post {
-            align-items: flex-start;
-        }
+    flex-wrap: wrap;
 
-    }
+    align-items: center;
 
+    padding: 12px 15px;
+  }
 
-    /* PHONE */
+  .sidebar h2 {
+    width: 100%;
 
-    @media (max-width: 600px) {
+    margin: 0 0 5px;
+  }
 
-        .admin-page {
-            display: block;
-        }
+  .menu-link {
+    width: auto;
 
-        .sidebar {
-            width: 100%;
+    padding: 5px 10px 5px 0;
+  }
 
-            padding: 12px;
+  .logout {
+    margin-top: 0;
+  }
 
-            display: flex;
-            align-items: center;
+  .main {
+    padding: 15px;
+  }
 
-            gap: 5px;
+  .topbar {
+    margin-bottom: 15px;
+  }
 
-            overflow-x: auto;
-        }
+  .post {
+    flex-direction: column;
 
-        .sidebar h2 {
-            display: none;
-        }
+    align-items: stretch;
 
-        .sidebar a {
-            margin: 0;
+    gap: 15px;
+  }
 
-            padding: 9px 10px;
+  .actions {
+    justify-content: flex-end;
+  }
 
-            white-space: nowrap;
+}
 
-            font-size: 13px;
-        }
-
-        .main {
-            width: 100%;
-
-            padding: 15px;
-        }
-
-        .topbar {
-            align-items: center;
-        }
-
-        .topbar h1 {
-            font-size: 21px;
-        }
-
-        .new-button {
-            padding: 8px 11px;
-
-            font-size: 13px;
-        }
-
-        .post {
-            padding: 15px;
-
-            align-items: flex-start;
-        }
-
-        .post-info h2 {
-            font-size: 16px;
-        }
-
-        .meta {
-            gap: 5px 10px;
-
-            font-size: 12px;
-        }
-
-        .actions {
-            flex-direction: column;
-        }
-
-        .edit,
-        .delete {
-            padding: 6px 10px;
-
-            font-size: 12px;
-        }
-
-    }
 </style>

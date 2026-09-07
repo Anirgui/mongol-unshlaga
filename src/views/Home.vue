@@ -48,10 +48,6 @@ onMounted(() => {
         <span>Уншлагын танхим</span>
       </div>
 
-      <a href="/admin" class="admin-link">
-        Admin
-      </a>
-
     </header>
 
 
