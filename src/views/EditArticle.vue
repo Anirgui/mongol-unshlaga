@@ -12,16 +12,14 @@ const content = ref('')
 
 const editor = ref(null)
 
-const categories = ['Өгүүллэг', 'Шүлэг', 'Үлгэр']
-
-onMounted(async () => {
+function loadArticle() {
   const articles = JSON.parse(
     localStorage.getItem('articles') || '[]'
   )
 
-  const id = Number(route.params.id)
-
-  const article = articles.find(item => item.id === id)
+  const article = articles.find(
+    item => item.id === Number(route.params.id)
+  )
 
   if (!article) {
     alert('Нийтлэл олдсонгүй')
@@ -34,12 +32,12 @@ onMounted(async () => {
   category.value = article.category
   content.value = article.content
 
-  await nextTick()
-
-  if (editor.value) {
-    editor.value.innerText = article.content
-  }
-})
+  nextTick(() => {
+    if (editor.value) {
+      editor.value.innerText = article.content
+    }
+  })
+}
 
 function updateContent() {
   if (editor.value) {
@@ -48,26 +46,12 @@ function updateContent() {
 }
 
 function saveArticle() {
-  updateContent()
-
-  if (!title.value.trim()) {
-    alert('Гарчиг оруулна уу')
-    return
-  }
-
-  if (!content.value.trim()) {
-    alert('Монгол бичгийн текст оруулна уу')
-    return
-  }
-
   const articles = JSON.parse(
     localStorage.getItem('articles') || '[]'
   )
 
-  const id = Number(route.params.id)
-
   const index = articles.findIndex(
-    article => article.id === id
+    item => item.id === Number(route.params.id)
   )
 
   if (index === -1) {
@@ -88,214 +72,227 @@ function saveArticle() {
     JSON.stringify(articles)
   )
 
-  alert('Нийтлэл амжилттай шинэчлэгдлээ')
-
+  alert('Нийтлэл хадгалагдлаа')
   router.push('/admin')
 }
+
+function cancel() {
+  router.push('/admin')
+}
+
+onMounted(() => {
+  loadArticle()
+})
 </script>
 
 <template>
-  <div class="admin-layout">
+  <div class="edit-page">
 
-    <aside class="sidebar">
-      <h2>Admin</h2>
+    <div class="topbar">
+      <h1>Нийтлэл засах</h1>
 
-      <nav>
-        <router-link to="/admin">
-          Нийтлэлүүд
-        </router-link>
-
-        <router-link to="/admin/new">
-          + Шинэ нийтлэл
-        </router-link>
-
-        <router-link to="/">
-          Сайт харах
-        </router-link>
-      </nav>
-    </aside>
-
-    <main class="content">
-
-      <div class="topbar">
-        <h1>Нийтлэл засах</h1>
+      <div class="actions">
+        <button
+          class="cancel-button"
+          @click="cancel"
+        >
+          Болих
+        </button>
 
         <button
-          class="publish"
+          class="save-button"
           @click="saveArticle"
         >
           Хадгалах
         </button>
       </div>
+    </div>
 
-      <div class="form">
+    <div class="form">
+
+      <input
+        v-model="title"
+        class="title-input"
+        type="text"
+        placeholder="Гарчиг"
+      />
+
+      <div class="row">
 
         <input
-          v-model="title"
-          class="title-input"
-          placeholder="Нийтлэлийн гарчиг"
+          v-model="author"
+          type="text"
+          placeholder="Зохиогч"
         />
 
-        <div class="settings">
+        <select v-model="category">
+          <option value="">
+            Ангилал сонгох
+          </option>
 
-          <input
-            v-model="author"
-            placeholder="Зохиогч"
-          />
+          <option value="Шүлэг">
+            Шүлэг
+          </option>
 
-          <select v-model="category">
-            <option
-              v-for="item in categories"
-              :key="item"
-              :value="item"
-            >
-              {{ item }}
-            </option>
-          </select>
+          <option value="Өгүүллэг">
+            Өгүүллэг
+          </option>
 
-        </div>
+          <option value="Зүйр цэцэн үг">
+            Зүйр цэцэн үг
+          </option>
 
-        <div
-          ref="editor"
-          class="mongol-editor"
-          contenteditable="true"
-          data-placeholder="Монгол бичгийн текстээ энд оруулна уу..."
-          @input="updateContent"
-        ></div>
+          <option value="Бусад">
+            Бусад
+          </option>
+        </select>
 
       </div>
 
-    </main>
+      <div
+        ref="editor"
+        class="mongol-editor"
+        contenteditable="true"
+        data-placeholder="Монгол бичгийн текстээ энд оруулна уу..."
+        @input="updateContent"
+      ></div>
+
+    </div>
 
   </div>
 </template>
 
-<style>
-@font-face {
-  font-family: MongolianScript;
-  src: url('/fonts/MongolianScript.ttf');
-}
+<style scoped>
 
-* {
+.edit-page {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 25px;
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-}
-
-.admin-layout {
-  display: flex;
-  min-height: 100vh;
-  background: #f5f5f5;
-}
-
-.sidebar {
-  width: 230px;
-  background: #1d2327;
-  color: white;
-  padding: 25px 15px;
-}
-
-.sidebar h2 {
-  margin: 0 0 30px;
-}
-
-.sidebar nav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.sidebar a {
-  color: #ddd;
-  text-decoration: none;
-  padding: 12px;
-  border-radius: 5px;
-}
-
-.sidebar a:hover {
-  background: #2c3338;
-}
-
-.content {
-  flex: 1;
-}
-
 .topbar {
-  height: 70px;
-  background: white;
-  border-bottom: 1px solid #ddd;
-
+  max-width: 1000px;
+  margin: 0 auto 20px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-
-  padding: 0 30px;
+  align-items: center;
+  gap: 15px;
 }
 
 .topbar h1 {
   margin: 0;
 }
 
-.publish {
-  background: #2271b1;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actions button {
+  padding: 9px 15px;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
+}
+
+.cancel-button {
+  border: 1px solid #ddd;
+  background: white;
+  color: #333;
+}
+
+.save-button {
+  border: none;
+  background: #222;
+  color: white;
 }
 
 .form {
-  padding: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .title-input {
   width: 100%;
-  font-size: 28px;
-  padding: 15px;
+  box-sizing: border-box;
+  padding: 13px;
+  margin-bottom: 12px;
   border: 1px solid #ddd;
-  margin-bottom: 15px;
+  border-radius: 7px;
+  font-size: 20px;
+  background: white;
 }
 
-.settings {
+.row {
   display: flex;
   gap: 10px;
   margin-bottom: 15px;
 }
 
-.settings input,
-.settings select {
-  padding: 10px;
+.row input,
+.row select {
+  flex: 1;
+  padding: 11px;
   border: 1px solid #ddd;
+  border-radius: 7px;
+  background: white;
+  font-size: 15px;
 }
 
 .mongol-editor {
   writing-mode: vertical-lr;
+  direction: rtl;
   text-orientation: mixed;
 
   font-family: MongolianScript, serif;
-  font-size: 30px;
+  font-size: 18px;
   line-height: 1.7;
 
-  height: 500px;
+  min-height: 700px;
+  width: 100%;
+
+  white-space: pre-wrap;
+  
+  text-align: left;
+
+  outline: none;
+
+  padding: 25px;
+
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
 
   overflow-x: auto;
   overflow-y: hidden;
 
-  white-space: pre-wrap;
-
-  outline: none;
-
-  padding: 20px;
-
-  background: white;
-  border: 1px solid #ddd;
+  box-sizing: border-box;
 }
 
-.mongol-editor:empty::before {
-  content: attr(data-placeholder);
-  opacity: .4;
+@media (max-width: 600px) {
+
+  .edit-page {
+    padding: 15px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .actions button {
+    flex: 1;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+
 }
+
 </style>
