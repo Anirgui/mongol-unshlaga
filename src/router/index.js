@@ -1,9 +1,7 @@
-import {
-  createRouter,
-  createWebHistory
-} from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 import Home from '../views/Home.vue'
+import Article from '../views/Article.vue'
 import Login from '../views/Login.vue'
 import Admin from '../views/Admin.vue'
 import NewArticle from '../views/NewArticle.vue'
@@ -13,6 +11,11 @@ const routes = [
   {
     path: '/',
     component: Home
+  },
+
+  {
+    path: '/article/:id',
+    component: Article
   },
 
   {
@@ -33,16 +36,11 @@ const routes = [
   {
     path: '/admin/edit/:id',
     component: EditArticle
-  },
-
-  {
-    path: '/article/:id',
-    component: () => import('../views/Article.vue')
   }
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes
 })
 
@@ -50,7 +48,6 @@ router.beforeEach((to) => {
   const isAdmin =
     localStorage.getItem('adminLoggedIn') === 'true'
 
-  // Admin хэсэг рүү нэвтрээгүй хүн орох гэж байвал
   if (
     to.path.startsWith('/admin') &&
     to.path !== '/admin/login' &&
@@ -59,7 +56,6 @@ router.beforeEach((to) => {
     return '/admin/login'
   }
 
-  // Нэвтэрчихсэн хүн login руу дахин орох гэвэл
   if (
     to.path === '/admin/login' &&
     isAdmin
