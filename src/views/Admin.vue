@@ -1,450 +1,455 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+    import {
+        ref,
+        onMounted
+    } from 'vue'
+    import {
+        useRouter
+    } from 'vue-router'
 
-const router = useRouter()
+    const router = useRouter()
 
-const articles = ref([])
+    const articles = ref([])
 
-function loadArticles() {
-  articles.value = JSON.parse(
-    localStorage.getItem('articles') || '[]'
-  )
-}
+    function loadArticles() {
+        articles.value = JSON.parse(
+            localStorage.getItem('articles') || '[]'
+        )
+    }
 
-function deleteArticle(id) {
-  if (!confirm('Энэ нийтлэлийг устгах уу?')) {
-    return
-  }
+    function deleteArticle(id) {
+        if (!confirm('Энэ нийтлэлийг устгах уу?')) {
+            return
+        }
 
-  articles.value = articles.value.filter(
-    article => article.id !== id
-  )
+        articles.value = articles.value.filter(
+            article => article.id !== id
+        )
 
-  localStorage.setItem(
-    'articles',
-    JSON.stringify(articles.value)
-  )
-}
+        localStorage.setItem(
+            'articles',
+            JSON.stringify(articles.value)
+        )
+    }
 
-function logout() {
-  localStorage.removeItem('adminLoggedIn')
-  router.push('/admin/login')
-}
+    function logout() {
+        localStorage.removeItem('adminLoggedIn')
+        router.push('/admin/login')
+    }
 
-onMounted(() => {
-  loadArticles()
-})
+    onMounted(() => {
+        loadArticles()
+    })
 </script>
 
 <template>
-  <div class="admin-page">
+    <div class="admin-page">
 
-    <!-- Зүүн талын Admin цэс -->
-    <aside class="sidebar">
+        <!-- Зүүн талын Admin цэс -->
+        <aside class="sidebar">
 
-      <h2>Уншлагын танхим</h2>
-
-      <router-link
-        to="/admin/new"
-        class="menu-link"
-      >
-        ✏️ Шинэ нийтлэл
-      </router-link>
-
-      <a
-        href="/"
-        class="menu-link"
-      >
-        🌐 Сайт харах
-      </a>
-
-      <button
-        class="menu-link logout"
-        @click="logout"
-      >
-        🚪 Гарах
-      </button>
-
-    </aside>
-
-
-    <!-- Үндсэн хэсэг -->
-    <main class="main">
-
-      <div class="topbar">
-        <h1>Нийтлэлүүд</h1>
-      </div>
-
-
-      <!-- Нийтлэл байхгүй үед -->
-      <div
-        v-if="articles.length === 0"
-        class="empty"
-      >
-        <h2>Одоогоор нийтлэл алга</h2>
-
-        <p>
-          Шинэ нийтлэл үүсгээд Publish дарна уу.
-        </p>
-
-        <router-link
-          to="/admin/new"
-          class="new-button"
-        >
-          + Шинэ нийтлэл
-        </router-link>
-      </div>
-
-
-      <!-- Нийтлэлүүд -->
-      <div
-        v-else
-        class="post-list"
-      >
-
-        <div
-          v-for="article in articles"
-          :key="article.id"
-          class="post"
-        >
-
-          <div class="post-info">
-
-            <h2>
-              {{ article.title }}
-            </h2>
-
-            <div class="meta">
-
-              <span>
-                {{ article.category }}
-              </span>
-
-              <span>
-                {{ article.author }}
-              </span>
-
-              <span>
-                {{ article.date }}
-              </span>
-
-              <span class="published">
-                Published
-              </span>
-
-            </div>
-
-          </div>
-
-
-          <div class="actions">
+            <h2>Уншлагын танхим</h2>
 
             <router-link
-              :to="`/admin/edit/${article.id}`"
-              class="edit"
-            >
-              Засах
+                to="/admin/new"
+                class="menu-link"
+                >
+                ✏️ Шинэ нийтлэл
+            </router-link>
+
+            <router-link
+                to="/"
+                class="menu-link"
+                >
+                🌐 Сайт харах
             </router-link>
 
             <button
-              class="delete"
-              @click="deleteArticle(article.id)"
-            >
-              Устгах
+                class="menu-link logout"
+                @click="logout"
+                >
+                🚪 Гарах
             </button>
 
-          </div>
+        </aside>
 
-        </div>
 
-      </div>
+        <!-- Үндсэн хэсэг -->
+        <main class="main">
 
-    </main>
+            <div class="topbar">
+                <h1>Нийтлэлүүд</h1>
+            </div>
 
-  </div>
+
+            <!-- Нийтлэл байхгүй үед -->
+            <div
+                v-if="articles.length === 0"
+                class="empty"
+                >
+                <h2>Одоогоор нийтлэл алга</h2>
+
+                <p>
+                    Шинэ нийтлэл үүсгээд Publish дарна уу.
+                </p>
+
+                <router-link
+                    to="/admin/new"
+                    class="new-button"
+                    >
+                    + Шинэ нийтлэл
+                </router-link>
+            </div>
+
+
+            <!-- Нийтлэлүүд -->
+            <div
+                v-else
+                class="post-list"
+                >
+
+                <div
+                    v-for="article in articles"
+                    :key="article.id"
+                    class="post"
+                    >
+
+                    <div class="post-info">
+
+                        <h2>
+                            {{ article.title }}
+                        </h2>
+
+                        <div class="meta">
+
+                            <span>
+                                {{ article.category }}
+                            </span>
+
+                            <span>
+                                {{ article.author }}
+                            </span>
+
+                            <span>
+                                {{ article.date }}
+                            </span>
+
+                            <span class="published">
+                                Published
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="actions">
+
+                        <router-link
+                            :to="`/admin/edit/${article.id}`"
+                            class="edit"
+                            >
+                            Засах
+                        </router-link>
+
+                        <button
+                            class="delete"
+                            @click="deleteArticle(article.id)"
+                            >
+                            Устгах
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
 </template>
 
 
 <style scoped>
 
-.admin-page {
-  display: flex;
-  min-height: 100vh;
-  background: #f5f5f5;
-}
+    .admin-page {
+        display: flex;
+        min-height: 100vh;
+        background: #f5f5f5;
+    }
 
 
-/* =========================
+    /* =========================
    SIDEBAR
 ========================= */
 
-.sidebar {
-  width: 220px;
-  padding: 20px;
+    .sidebar {
+        width: 220px;
+        padding: 20px;
 
-  background: white;
+        background: white;
 
-  box-sizing: border-box;
+        box-sizing: border-box;
 
-  display: flex;
-  flex-direction: column;
-}
+        display: flex;
+        flex-direction: column;
+    }
 
-.sidebar h2 {
-  margin: 0 0 25px;
-}
-
-
-/* Admin цэс */
-
-.menu-link {
-  display: block;
-
-  width: 100%;
-
-  padding: 7px 0;
-
-  margin: 0;
-
-  background: none;
-  border: none;
-
-  color: #333;
-
-  text-decoration: none;
-
-  font-size: 14px;
-  font-weight: normal;
-
-  text-align: left;
-
-  cursor: pointer;
-
-  box-sizing: border-box;
-}
-
-.menu-link:hover {
-  color: #000;
-}
+    .sidebar h2 {
+        margin: 0 0 25px;
+    }
 
 
-/* Гарах */
+    /* Admin цэс */
 
-.logout {
-  margin-top: auto;
-  color: #777;
-}
+    .menu-link {
+        display: block;
 
-.logout:hover {
-  color: #c00;
-}
+        width: 100%;
+
+        padding: 7px 0;
+
+        margin: 0;
+
+        background: none;
+        border: none;
+
+        color: #333;
+
+        text-decoration: none;
+
+        font-size: 14px;
+        font-weight: normal;
+
+        text-align: left;
+
+        cursor: pointer;
+
+        box-sizing: border-box;
+    }
+
+    .menu-link:hover {
+        color: #000;
+    }
 
 
-/* =========================
+    /* Гарах */
+
+    .logout {
+        margin-top: auto;
+        color: #777;
+    }
+
+    .logout:hover {
+        color: #c00;
+    }
+
+
+    /* =========================
    MAIN
 ========================= */
 
-.main {
-  flex: 1;
+    .main {
+        flex: 1;
 
-  padding: 30px;
-}
-
-
-/* Гарчиг */
-
-.topbar {
-  margin-bottom: 25px;
-}
-
-.topbar h1 {
-  margin: 0;
-}
+        padding: 30px;
+    }
 
 
-/* =========================
+    /* Гарчиг */
+
+    .topbar {
+        margin-bottom: 25px;
+    }
+
+    .topbar h1 {
+        margin: 0;
+    }
+
+
+    /* =========================
    EMPTY
 ========================= */
 
-.empty {
-  background: white;
+    .empty {
+        background: white;
 
-  padding: 40px;
+        padding: 40px;
 
-  text-align: center;
+        text-align: center;
 
-  border-radius: 8px;
-}
+        border-radius: 8px;
+    }
 
-.empty p {
-  color: #777;
-}
-
-
-/* Шинэ нийтлэл */
-
-.new-button {
-  display: inline-block;
-
-  margin-top: 10px;
-
-  padding: 9px 14px;
-
-  background: #222;
-  color: white;
-
-  text-decoration: none;
-
-  border-radius: 6px;
-
-  font-size: 14px;
-}
+    .empty p {
+        color: #777;
+    }
 
 
-/* =========================
+    /* Шинэ нийтлэл */
+
+    .new-button {
+        display: inline-block;
+
+        margin-top: 10px;
+
+        padding: 9px 14px;
+
+        background: #222;
+        color: white;
+
+        text-decoration: none;
+
+        border-radius: 6px;
+
+        font-size: 14px;
+    }
+
+
+    /* =========================
    POSTS
 ========================= */
 
-.post-list {
-  display: flex;
+    .post-list {
+        display: flex;
 
-  flex-direction: column;
+        flex-direction: column;
 
-  gap: 12px;
-}
+        gap: 12px;
+    }
 
-.post {
-  background: white;
+    .post {
+        background: white;
 
-  padding: 20px;
+        padding: 20px;
 
-  border-radius: 8px;
+        border-radius: 8px;
 
-  display: flex;
+        display: flex;
 
-  justify-content: space-between;
+        justify-content: space-between;
 
-  align-items: center;
-}
+        align-items: center;
+    }
 
-.post-info h2 {
-  margin: 0 0 10px;
-}
+    .post-info h2 {
+        margin: 0 0 10px;
+    }
 
-.meta {
-  display: flex;
+    .meta {
+        display: flex;
 
-  gap: 10px;
+        gap: 10px;
 
-  flex-wrap: wrap;
+        flex-wrap: wrap;
 
-  color: #777;
+        color: #777;
 
-  font-size: 14px;
-}
+        font-size: 14px;
+    }
 
-.published {
-  color: green;
-}
+    .published {
+        color: green;
+    }
 
 
-/* =========================
+    /* =========================
    ACTIONS
 ========================= */
 
-.actions {
-  display: flex;
+    .actions {
+        display: flex;
 
-  gap: 8px;
-}
+        gap: 8px;
+    }
 
-.edit,
-.delete {
-  padding: 7px 11px;
+    .edit,
+    .delete {
+        padding: 7px 11px;
 
-  border-radius: 5px;
+        border-radius: 5px;
 
-  font-size: 14px;
+        font-size: 14px;
 
-  text-decoration: none;
+        text-decoration: none;
 
-  cursor: pointer;
-}
+        cursor: pointer;
+    }
 
-.edit {
-  background: #eee;
+    .edit {
+        background: #eee;
 
-  color: #222;
-}
+        color: #222;
+    }
 
-.delete {
-  border: none;
+    .delete {
+        border: none;
 
-  background: #eee;
+        background: #eee;
 
-  color: #c00;
-}
+        color: #c00;
+    }
 
 
-/* =========================
+    /* =========================
    MOBILE
 ========================= */
 
-@media (max-width: 600px) {
+    @media (max-width: 600px) {
 
-  .admin-page {
-    flex-direction: column;
-  }
+        .admin-page {
+            flex-direction: column;
+        }
 
-  .sidebar {
-    width: 100%;
+        .sidebar {
+            width: 100%;
 
-    flex-direction: row;
+            flex-direction: row;
 
-    flex-wrap: wrap;
+            flex-wrap: wrap;
 
-    align-items: center;
+            align-items: center;
 
-    padding: 12px 15px;
-  }
+            padding: 12px 15px;
+        }
 
-  .sidebar h2 {
-    width: 100%;
+        .sidebar h2 {
+            width: 100%;
 
-    margin: 0 0 5px;
-  }
+            margin: 0 0 5px;
+        }
 
-  .menu-link {
-    width: auto;
+        .menu-link {
+            width: auto;
 
-    padding: 5px 10px 5px 0;
-  }
+            padding: 5px 10px 5px 0;
+        }
 
-  .logout {
-    margin-top: 0;
-  }
+        .logout {
+            margin-top: 0;
+        }
 
-  .main {
-    padding: 15px;
-  }
+        .main {
+            padding: 15px;
+        }
 
-  .topbar {
-    margin-bottom: 15px;
-  }
+        .topbar {
+            margin-bottom: 15px;
+        }
 
-  .post {
-    flex-direction: column;
+        .post {
+            flex-direction: column;
 
-    align-items: stretch;
+            align-items: stretch;
 
-    gap: 15px;
-  }
+            gap: 15px;
+        }
 
-  .actions {
-    justify-content: flex-end;
-  }
+        .actions {
+            justify-content: flex-end;
+        }
 
-}
+    }
 
 </style>
