@@ -8,6 +8,7 @@ const title = ref('')
 const author = ref('')
 const category = ref('Өгүүллэг')
 const content = ref('')
+const background = ref('')
 
 const editor = ref(null)
 
