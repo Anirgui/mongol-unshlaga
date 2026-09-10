@@ -16,8 +16,9 @@ onMounted(async () => {
     article.value = await res.json()
   }
 
-  backgroundImage.value =
-    localStorage.getItem('readerBackground') || ''
+  const bgRes = await fetch('/api/settings/background')
+  const bgData = await bgRes.json()
+  backgroundImage.value = bgData.value || ''
 })
 
 function goBack() {

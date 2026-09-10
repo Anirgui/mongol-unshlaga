@@ -21,9 +21,10 @@ async function loadArticles() {
   articles.value = await res.json()
 }
 
-function loadBackground() {
-  backgroundImage.value =
-    localStorage.getItem('readerBackground') || ''
+async function loadBackground() {
+  const res = await fetch('/api/settings/background')
+  const data = await res.json()
+  backgroundImage.value = data.value || ''
 }
 
 function chooseBackground() {
@@ -44,28 +45,27 @@ function handleBackgroundUpload(event) {
 
   const reader = new FileReader()
 
-  reader.onload = () => {
+  reader.onload = async () => {
     backgroundImage.value = reader.result
 
-    localStorage.setItem(
-      'readerBackground',
-      reader.result
-    )
+    await fetch('/api/settings/background', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: reader.result })
+    })
   }
 
   reader.readAsDataURL(file)
 }
 
-function removeBackground() {
+async function removeBackground() {
   if (!confirm('Background зургийг устгах уу?')) {
     return
   }
 
   backgroundImage.value = ''
 
-  localStorage.removeItem(
-    'readerBackground'
-  )
+  await fetch('/api/settings/background', { method: 'DELETE' })
 }
 
 async function deleteArticle(id) {

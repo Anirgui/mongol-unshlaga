@@ -21,7 +21,8 @@ async function handleApi(request, env, url) {
   const { pathname } = url;
   const method = request.method;
 
-  // /api/articles
+  // ===== ARTICLES =====
+
   if (pathname === '/api/articles' && method === 'GET') {
     const { results } = await env.DB.prepare(
       'SELECT * FROM articles ORDER BY id DESC'
@@ -44,10 +45,9 @@ async function handleApi(request, env, url) {
     return json({ success: true, id: result.meta.last_row_id });
   }
 
-  // /api/articles/:id
-  const match = pathname.match(/^\/api\/articles\/(\d+)$/);
-  if (match) {
-    const id = match[1];
+  const articleMatch = pathname.match(/^\/api\/articles\/(\d+)$/);
+  if (articleMatch) {
+    const id = articleMatch[1];
 
     if (method === 'GET') {
       const article = await env.DB.prepare(
@@ -77,6 +77,31 @@ async function handleApi(request, env, url) {
       await env.DB.prepare('DELETE FROM articles WHERE id = ?').bind(id).run();
       return json({ success: true });
     }
+  }
+
+  // ===== SETTINGS (background image) =====
+
+  if (pathname === '/api/settings/background' && method === 'GET') {
+    const row = await env.DB.prepare(
+      'SELECT value FROM settings WHERE key = ?'
+    ).bind('background').first();
+
+    return json({ value: row ? row.value : '' });
+  }
+
+  if (pathname === '/api/settings/background' && method === 'POST') {
+    const body = await request.json();
+
+    await env.DB.prepare(
+      'INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value'
+    ).bind('background', body.value).run();
+
+    return json({ success: true });
+  }
+
+  if (pathname === '/api/settings/background' && method === 'DELETE') {
+    await env.DB.prepare('DELETE FROM settings WHERE key = ?').bind('background').run();
+    return json({ success: true });
   }
 
   return json({ error: 'Not found' }, 404);
