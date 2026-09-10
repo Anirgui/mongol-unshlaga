@@ -1,0 +1,16 @@
+{
+  "name": "mongol-unshlaga",
+  "compatibility_date": "2026-09-01",
+  "main": "worker/index.js",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "mongol-unshlaga-db",
+      "database_id": "9298af0f-f781-4c6d-ac9a-0a9b29d22d88"
+    }
+  ]
+}
