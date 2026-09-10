@@ -4,13 +4,15 @@ import { ref, computed, onMounted } from 'vue'
 const articles = ref([])
 const search = ref('')
 const selectedCategory = ref('Бүгд')
+const loading = ref(true)
 
 const categories = ['Бүгд', 'Өгүүллэг', 'Шүлэг', 'Үлгэр']
 
-function loadArticles() {
-  articles.value = JSON.parse(
-    localStorage.getItem('articles') || '[]'
-  )
+async function loadArticles() {
+  loading.value = true
+  const res = await fetch('/api/articles')
+  articles.value = await res.json()
+  loading.value = false
 }
 
 const filteredArticles = computed(() => {
@@ -101,6 +103,8 @@ onMounted(() => {
 
     <main class="articles">
 
+      <p v-if="loading">Уншиж байна...</p>
+
       <article
         v-for="article in filteredArticles"
         :key="article.id"
@@ -141,7 +145,7 @@ onMounted(() => {
       <!-- EMPTY -->
 
       <div
-        v-if="filteredArticles.length === 0"
+        v-if="!loading && filteredArticles.length === 0"
         class="empty"
       >
 

@@ -16,10 +16,9 @@ const backgroundImage = ref('')
 
 const fileInput = ref(null)
 
-function loadArticles() {
-  articles.value = JSON.parse(
-    localStorage.getItem('articles') || '[]'
-  )
+async function loadArticles() {
+  const res = await fetch('/api/articles')
+  articles.value = await res.json()
 }
 
 function loadBackground() {
@@ -69,19 +68,13 @@ function removeBackground() {
   )
 }
 
-function deleteArticle(id) {
+async function deleteArticle(id) {
   if (!confirm('Энэ нийтлэлийг устгах уу?')) {
     return
   }
 
-  articles.value = articles.value.filter(
-    article => article.id !== id
-  )
-
-  localStorage.setItem(
-    'articles',
-    JSON.stringify(articles.value)
-  )
+  await fetch(`/api/articles/${id}`, { method: 'DELETE' })
+  await loadArticles()
 }
 
 function logout() {

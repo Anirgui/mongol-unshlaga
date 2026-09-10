@@ -6,22 +6,16 @@ const route = useRoute()
 const router = useRouter()
 
 const article = ref(null)
-
-// Background зураг
 const backgroundImage = ref('')
 
-onMounted(() => {
-  const articles = JSON.parse(
-    localStorage.getItem('articles') || '[]'
-  )
+onMounted(async () => {
+  const id = route.params.id
 
-  const id = Number(route.params.id)
+  const res = await fetch(`/api/articles/${id}`)
+  if (res.ok) {
+    article.value = await res.json()
+  }
 
-  article.value = articles.find(
-    item => item.id === id
-  )
-
-  // Admin-аас сонгосон background зургийг унших
   backgroundImage.value =
     localStorage.getItem('readerBackground') || ''
 })
@@ -74,8 +68,6 @@ function goBack() {
         {{ article.author }}
       </p>
 
-
-      <!-- Монгол бичгийн уншигч -->
 
       <div
         class="mongol-reader"
@@ -141,10 +133,6 @@ body {
 }
 
 
-/* =========================
-   TOPBAR
-========================= */
-
 .topbar {
   height: 60px;
 
@@ -182,10 +170,6 @@ body {
 }
 
 
-/* =========================
-   ARTICLE
-========================= */
-
 .article {
   max-width: 1100px;
 
@@ -220,10 +204,6 @@ body {
 }
 
 
-/* =========================
-   МОНГОЛ БИЧГИЙН УНШИГЧ
-========================= */
-
 .mongol-reader {
 
   writing-mode: vertical-lr;
@@ -235,8 +215,6 @@ body {
   line-height: 1.7;
 
 
-  /* 9:16 цонх */
-
   width: min(100%, 360px);
 
   aspect-ratio: 9 / 16;
@@ -246,8 +224,6 @@ body {
 
   white-space: pre-wrap;
 
-
-  /* Background */
 
   background-color: white;
 
@@ -263,12 +239,8 @@ body {
   border-radius: 10px;
 
 
-  /* Дотор зай */
-
   padding: 20px;
 
-
-  /* Swipe */
 
   overflow-x: auto;
 
@@ -280,10 +252,6 @@ body {
 
 }
 
-
-/* =========================
-   NOT FOUND
-========================= */
 
 .not-found {
   text-align: center;

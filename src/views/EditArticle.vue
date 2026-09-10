@@ -12,20 +12,16 @@ const content = ref('')
 
 const editor = ref(null)
 
-function loadArticle() {
-  const articles = JSON.parse(
-    localStorage.getItem('articles') || '[]'
-  )
+async function loadArticle() {
+  const res = await fetch(`/api/articles/${route.params.id}`)
 
-  const article = articles.find(
-    item => item.id === Number(route.params.id)
-  )
-
-  if (!article) {
+  if (!res.ok) {
     alert('Нийтлэл олдсонгүй')
     router.push('/admin')
     return
   }
+
+  const article = await res.json()
 
   title.value = article.title
   author.value = article.author
@@ -45,32 +41,17 @@ function updateContent() {
   }
 }
 
-function saveArticle() {
-  const articles = JSON.parse(
-    localStorage.getItem('articles') || '[]'
-  )
-
-  const index = articles.findIndex(
-    item => item.id === Number(route.params.id)
-  )
-
-  if (index === -1) {
-    alert('Нийтлэл олдсонгүй')
-    return
-  }
-
-  articles[index] = {
-    ...articles[index],
-    title: title.value.trim(),
-    author: author.value.trim() || 'Тодорхойгүй',
-    category: category.value,
-    content: content.value
-  }
-
-  localStorage.setItem(
-    'articles',
-    JSON.stringify(articles)
-  )
+async function saveArticle() {
+  await fetch(`/api/articles/${route.params.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title: title.value.trim(),
+      author: author.value.trim() || 'Тодорхойгүй',
+      category: category.value,
+      content: content.value
+    })
+  })
 
   alert('Нийтлэл хадгалагдлаа')
   router.push('/admin')

@@ -8,7 +8,6 @@ const title = ref('')
 const author = ref('')
 const category = ref('Өгүүллэг')
 const content = ref('')
-const background = ref('')
 
 const editor = ref(null)
 
@@ -18,7 +17,7 @@ function updateContent() {
   }
 }
 
-function publishArticle() {
+async function publishArticle() {
   updateContent()
 
   if (!title.value.trim()) {
@@ -31,26 +30,17 @@ function publishArticle() {
     return
   }
 
-  const articles = JSON.parse(
-    localStorage.getItem('articles') || '[]'
-  )
-
-  const article = {
-    id: Date.now(),
-    title: title.value.trim(),
-    author: author.value.trim() || 'Тодорхойгүй',
-    category: category.value,
-    content: content.value,
-    status: 'published',
-    date: new Date().toLocaleDateString('mn-MN')
-  }
-
-  articles.unshift(article)
-
-  localStorage.setItem(
-    'articles',
-    JSON.stringify(articles)
-  )
+  await fetch('/api/articles', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title: title.value.trim(),
+      author: author.value.trim() || 'Тодорхойгүй',
+      category: category.value,
+      content: content.value,
+      date: new Date().toLocaleDateString('mn-MN')
+    })
+  })
 
   alert('Нийтлэл амжилттай нийтлэгдлээ! 🎉')
 
